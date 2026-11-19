@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="kk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Online Physics</title>
+<link rel="icon" type="image/svg+xml" href="favicon.svg">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#1d4a47">
+<style>
+body{margin:0;background:#cfcfcf;font-family:Verdana,Tahoma,Arial,sans-serif;font-size:13px;color:#000}
+#wrap{max-width:1020px;margin:0 auto;background:#fff;border-left:1px solid #888;border-right:1px solid #888;min-height:100vh}
+#head{position:relative;background:#1d4a47;background:linear-gradient(#2d6663,#163b39);color:#fff;text-align:center;padding:14px 8px 12px;border-bottom:5px solid #0c2523}
+#head h1{margin:0;font-family:"Times New Roman",Times,serif;font-size:25px;text-shadow:1px 1px 0 #000}
+#head div.sub{font-size:11px;letter-spacing:3px;margin-top:5px;color:#d6e6e4}
+#lang{position:absolute;top:6px;right:6px;display:flex;gap:2px}
+#lang button{font-size:11px;padding:2px 7px;background:#3f7774;color:#fff;border:2px outset #5d9592}
+#lang button.on{background:#0f2f2d;border-style:inset;border-color:#2a5a57}
+h2{text-align:center;font-family:"Times New Roman",Times,serif;font-size:23px;margin:12px 6px}
+#lab{display:flex;flex-wrap:wrap;gap:10px;padding:0 8px}
+#ctl{flex:1 1 330px;min-width:270px}
+#view{flex:1 1 440px;min-width:270px}
+#cv,#gr{display:block;width:100%;border:1px solid #777;background:#fff;touch-action:manipulation}
+#gbox{margin-top:8px}
+#gtit{font-weight:bold;font-size:12px;text-align:center;padding:3px;background:#eee;border:1px solid #777;border-bottom:0}
+fieldset{border:1px solid #999;margin:0 0 8px;padding:5px 8px 7px}
+legend{font-weight:bold;font-size:12px;padding:0 3px}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px}
+label{cursor:pointer;white-space:nowrap}
+input[type=number]{width:72px;font:inherit;padding:2px;border:2px inset #ccc}
+input[type=range]{width:100%;accent-color:#e33;margin:6px 0}
+.row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:3px 0}
+button{font:inherit;background:#e4e4e4;border:2px outset #ddd;padding:4px 10px;cursor:pointer;color:#000}
+button:active,button.on{border-style:inset;background:#d0d0d0}
+.btns{display:flex;flex-wrap:wrap;gap:6px;margin:0 0 8px}
+#out{border:1px solid #999;background:#f6f6ee;padding:6px 8px;margin-bottom:8px;line-height:1.6}
+.tir{color:#c00;font-weight:bold}
+#rst{font-size:16px;padding:0 6px;line-height:20px}
+#txt{padding:6px 16px 20px;line-height:1.5;font-size:12.5px}
+#txt b{display:block;margin-top:10px}
+#foot{background:#163b39;height:8px}
+@media (max-width:760px){#view{order:-1}#head h1{font-size:20px;margin-top:14px}h2{font-size:19px}}
+</style>
+</head>
+<body>
+<div id="wrap">
+<div id="head">
+  <div id="lang"><button data-l="kk">ҚАЗ</button><button data-l="en">ENG</button></div>
+  <h1 data-t="site"></h1>
+  <div class="sub" data-t="sub"></div>
+</div>
+
+<h2 data-t="title"></h2>
+
+<div id="lab">
+ <div id="ctl">
+  <fieldset>
+   <legend data-t="lAng"></legend>
+   <div class="row">
+    <button id="dec">&lt;</button>
+    <input type="range" id="sl" min="0" max="89.9" step="0.1" value="30" style="flex:1">
+    <button id="inc">&gt;</button>
+   </div>
+   <div class="row">
+    α = <input type="number" id="ang" min="0" max="89.9" step="0.01" value="30"> °
+    &nbsp; <span data-t="step"></span> <input type="number" id="stp" min="0.01" max="10" step="0.01" value="0.1" style="width:55px"> °
+   </div>
+  </fieldset>
+
+  <fieldset>
+   <legend data-t="lPos"></legend>
+   <label><input type="radio" name="pos" value="1"> <span data-t="pos1"></span></label><br>
+   <label><input type="radio" name="pos" value="2" checked> <span data-t="pos2"></span></label>
+  </fieldset>
+
+  <fieldset>
+   <legend data-t="lMat"></legend>
+   <div class="g2" id="mats"></div>
+   <div class="row" style="margin-top:6px"><span data-t="nObj"></span> <input type="number" id="nobj" min="1" max="4" step="0.001" value="1.500"></div>
+  </fieldset>
+
+  <fieldset>
+   <legend data-t="lEnv"></legend>
+   <div class="row"><span data-t="nEnv"></span> <input type="number" id="nenv" min="1" max="4" step="0.001" value="1.000"></div>
+  </fieldset>
+
+  <div class="btns">
+   <button id="bLas" class="on"></button>
+   <button id="bNor" data-t="normal"></button>
+   <button id="bPro" data-t="prot"></button>
+   <button id="bGr" data-t="graph"></button>
+   <button id="rst">&#10227;</button>
+  </div>
+  <label><input type="checkbox" id="cVal"> <span data-t="vals"></span></label>
+  <div id="out" style="display:none;margin-top:6px"></div>
+ </div>
+
+ <div id="view">
+  <canvas id="cv"></canvas>
+  <div id="gbox">
+   <div id="gtit" data-t="gTitle"></div>
+   <canvas id="gr"></canvas>
+  </div>
+ </div>
+</div>
+
+<div id="txt" data-t="text"></div>
+<div id="foot"></div>
+</div>
+
+<script>
+var L={
+kk:{
+ site:'Online Physics',sub:'Онлайн зертханалық жұмыс',
+ title:'Жарықтың толықтай ішкі шағылуын зерттеу',
+ lAng:'Түсу бұрышы, α',step:'қадам:',lPos:'Жартылай цилиндрдің орны',
+ pos1:'1-орын (ортадан → затқа)',pos2:'2-орын (заттан → ортаға)',
+ lMat:'Жартылай цилиндрдің материалы',nObj:'Сыну көрсеткіші n<sub>зат</sub> =',
+ lEnv:'Қоршаған орта',nEnv:'Сыну көрсеткіші n<sub>орта</sub> =',
+ normal:'Нормаль',prot:'Транспортир',graph:'График',reset:'Бастапқы күй',
+ lasOn:'Лазер: ҚОСУЛЫ',lasOff:'Лазер: ӨШІРУЛІ',vals:'Бұрыш мәндерін көрсету',
+ mats:['Ауа','Май','Су','Глицерин','Шыны','Поликарбонат','Басқа'],
+ air:'Ауа',env:'Орта',obj:'Зат',unk:'#-зат',unkH:'Белгісіз заттар (кестедегі 1–10 заттар):',tirC:'ТОЛЫҚТАЙ ІШКІ ШАҒЫЛУ',grzC:'β = 90° — СЫНҒАН СӘУЛЕ ШЕКАРА БОЙЫМЕН ТАРАЛАДЫ',oGrz:'β = 90° — сынған сәуле шекара бойымен таралады (α = α<sub>0</sub>)',
+ oInc:'Түсу бұрышы',oRef:'Сыну бұрышы',oTir:'сынған сәуле жоқ — толықтай ішкі шағылу!',
+ oRefl:'Шағылу бұрышы',oCrit:'Шекті бұрыш',oNo:'жоқ (n<sub>1</sub> ≤ n<sub>2</sub>)',
+ oR:'Шағылған жарық',oT:'сынған жарық',
+ gTitle:'Шағылған және сынған жарық үлесінің түсу бұрышына тәуелділігі',
+ gR:'Шағылған',gT:'Сынған',gC:'α₀',
+ text:'<b>БАСҚАРУ:</b>- Жартылай цилиндрдің орнын таңдаңыз.<br>- Материалды таңдаңыз немесе сыну көрсеткішін (n<sub>зат</sub>) қолмен енгізіңіз. Қоршаған ортаның көрсеткішін (n<sub>орта</sub>) де өзгертуге болады.<br>- Түсу бұрышын сырғытпамен, &lt; және &gt; батырмаларымен (қадамы өзгереді) немесе санмен енгізіп өзгертіңіз.<br>- НОРМАЛЬ батырмасы түсу нүктесіндегі нормальді көрсетеді.<br>- ТРАНСПОРТИР батырмасы бұрыштарды өлшейтін транспортирді шығарады, оны қалаған жерге жылжытуға болады (центрге жақындатқанда өзі орнығады).<br>- ГРАФИК батырмасы шағылған және сынған жарық үлесінің түсу бұрышына тәуелділік графигін көрсетеді немесе жасырады.<b>ЖҰМЫСТЫҢ СИПАТТАМАСЫ:</b>1-орында жарық оптикалық тығыздығы аз ортадан тығыздығы көп ортаға өтеді, 2-орында керісінше. Жарық сәулесі жартылай цилиндрдің қисық бетіне радиус бойымен түсетіндіктен, онда сынбайды, сыну тек жазық беттің центрінде болады. Түсу және сыну бұрыштарын өлшеп, n<sub>1</sub>·sin α = n<sub>2</sub>·sin β заңы бойынша заттың сыну көрсеткішін анықтауға болады. 2-орында түсу бұрышын арттыра отырып, сынған сәуле жоғалатын шекті бұрышты α<sub>0</sub> табыңыз: sin α<sub>0</sub> = n<sub>орта</sub> / n<sub>зат</sub>. Осы бұрыштан бастап жарық толықтай ішкі шағылады.'
+},
+en:{
+ site:'Online Physics',sub:'Online laboratory work',
+ title:'Study of Total Internal Reflection of Light',
+ lAng:'Angle of incidence, α',step:'step:',lPos:'Position of the semicircular object',
+ pos1:'Position 1 (medium → material)',pos2:'Position 2 (material → medium)',
+ lMat:'Material of the semicircular object',nObj:'Refractive index n<sub>mat</sub> =',
+ lEnv:'Surrounding medium',nEnv:'Refractive index n<sub>med</sub> =',
+ normal:'Normal',prot:'Protractor',graph:'Graph',reset:'Reset',
+ lasOn:'Laser: ON',lasOff:'Laser: OFF',vals:'Show angle values',
+ mats:['Air','Oil','Water','Glycerin','Glass','Polycarbonate','Other'],
+ air:'Air',env:'Medium',obj:'Material',unk:'Substance #',unkH:'Unknown substances (1–10):',tirC:'TOTAL INTERNAL REFLECTION',grzC:'β = 90° — REFRACTED RAY TRAVELS ALONG THE BOUNDARY',oGrz:'β = 90° — the refracted ray travels along the boundary (α = α<sub>0</sub>)',
+ oInc:'Angle of incidence',oRef:'Angle of refraction',oTir:'no refracted ray — total internal reflection!',
+ oRefl:'Angle of reflection',oCrit:'Critical angle',oNo:'none (n<sub>1</sub> ≤ n<sub>2</sub>)',
+ oR:'Reflected light',oT:'refracted light',
+ gTitle:'Fraction of reflected and refracted light vs angle of incidence',
+ gR:'Reflected',gT:'Refracted',gC:'α₀',
+ text:'<b>CONTROLS:</b>- Choose a position for the semicircular object.<br>- Choose the material or enter its refractive index (n<sub>mat</sub>) manually. The refractive index of the surrounding medium (n<sub>med</sub>) can also be changed.<br>- Change the angle of incidence with the slider, the &lt; and &gt; buttons (adjustable step) or by typing a value.<br>- The NORMAL button shows the normal at the point of incidence.<br>- The PROTRACTOR button shows a protractor that can be dragged anywhere (it snaps to the centre).<br>- The GRAPH button shows or hides the graph of reflected and refracted light versus the angle of incidence.<b>DESCRIPTION:</b>In position 1 light passes from the optically less dense medium into the denser one; position 2 is the opposite. The beam hits the curved surface along a radius, so it does not bend there; refraction happens only at the centre of the flat face. By measuring the angles of incidence and refraction you can find the refractive index of the material from n<sub>1</sub>·sin α = n<sub>2</sub>·sin β. In position 2, increase the angle of incidence and find the critical angle α<sub>0</sub> at which the refracted ray disappears: sin α<sub>0</sub> = n<sub>med</sub> / n<sub>mat</sub>. Beyond this angle the light is totally internally reflected.'
+}};
+
+var MATS=[
+ ['air',1.000,'rgba(225,235,250,0.6)'],
+ ['oil',1.470,'#f2e48c'],
+ ['water',1.333,'#66f0f0'],
+ ['glyc',1.473,'#e3edc6'],
+ ['glass',1.500,'#bcdbe9'],
+ ['poly',1.586,'#d9d9e3'],
+ ['custom',null,'#bff2bf']
+];
+var UA=[50,24.5,49,35,47.5,43,40.5,31,33,29.5];
+var UC=['#d7eefa','#f4f4ff','#9ff0f0','#f7c6cf','#e2f7ff','#eef2d0','#f5f0e6','#f0d9b0','#cfd8e8','#ead6f2'];
+UA.forEach(function(a,i){MATS.push(['u'+(i+1),1/Math.sin(a*Math.PI/180),UC[i],1]);});
+var DEF={pos:2,mat:'glass',n:1.5,n0:1.0,ang:30,step:0.1,laser:true,normal:false,prot:false,vals:false,graph:true,pdx:0,pdy:0};
+var st=JSON.parse(JSON.stringify(DEF));
+var lang='kk';try{var sv=localStorage.getItem('tir_lang');if(sv=='en'||sv=='kk')lang=sv;}catch(e){}
+var $=function(id){return document.getElementById(id)};
+var cv=$('cv'),ctx=cv.getContext('2d'),gr=$('gr'),gctx=gr.getContext('2d'),W=0,H=0,GH=0,dpr=1;
+
+var mh='';
+MATS.forEach(function(m,i){
+ if(i==7)mh+='</div><div style="margin:8px 0 4px;font-weight:bold;font-size:12px" data-t="unkH"></div><div class="g2">';
+ mh+='<label><input type="radio" name="mat" value="'+m[0]+'"> <span class="mn" data-i="'+i+'"></span></label>';});
+$('mats').outerHTML='<div><div class="g2">'+mh+'</div></div>';
+
+function T(k){return L[lang][k];}
+function mname(i){return i<7?T('mats')[i]:T('unk').replace('#',i-6);}
+function hid(){return !!MATS[mat(st.mat)][3];}
+function applyLang(){
+ document.documentElement.lang=lang;document.title='Online Physics — '+T('title');
+ document.querySelectorAll('[data-t]').forEach(function(e){e.innerHTML=T(e.getAttribute('data-t'));});
+ document.querySelectorAll('.mn').forEach(function(e){e.textContent=mname(+e.getAttribute('data-i'));});
+ document.querySelectorAll('#lang button').forEach(function(b){b.className=b.getAttribute('data-l')==lang?'on':'';});
+ $('rst').title=T('reset');
+ sync();
+}
+document.querySelectorAll('#lang button').forEach(function(b){b.onclick=function(){lang=this.getAttribute('data-l');try{localStorage.setItem('tir_lang',lang);}catch(e){}applyLang();};});
+
+function mat(k){for(var i=0;i<MATS.length;i++)if(MATS[i][0]==k)return i;}
+function num(v,a,b){v=parseFloat(String(v).replace(',','.'));if(isNaN(v))return null;return Math.min(b,Math.max(a,v));}
+function f(x,d){return x.toFixed(d==null?1:d);}
+
+function sync(){
+ document.querySelector('input[name=pos][value="'+st.pos+'"]').checked=true;
+ document.querySelector('input[name=mat][value="'+st.mat+'"]').checked=true;
+ if(document.activeElement!==$('nobj')){$('nobj').value=hid()?'':f(st.n,3);$('nobj').placeholder=hid()?'?':'';}
+ if(document.activeElement!==$('nenv'))$('nenv').value=f(st.n0,3);
+ if(document.activeElement!==$('ang'))$('ang').value=+st.ang.toFixed(2);
+ $('sl').value=st.ang;$('stp').value=st.step;
+ $('bLas').className=st.laser?'on':'';$('bLas').textContent=st.laser?T('lasOn'):T('lasOff');
+ $('bNor').className=st.normal?'on':'';$('bPro').className=st.prot?'on':'';$('bGr').className=st.graph?'on':'';
+ $('cVal').checked=st.vals;$('out').style.display=st.vals?'block':'none';
+ $('gbox').style.display=st.graph?'block':'none';
+ draw();
+}
+
+function setAng(v){v=num(v,0,89.9);if(v===null)return;st.ang=Math.round(v*100)/100;sync();}
+
+document.querySelectorAll('input[name=pos]').forEach(function(e){e.onchange=function(){st.pos=+this.value;sync();};});
+document.querySelectorAll('input[name=mat]').forEach(function(e){e.onchange=function(){st.mat=this.value;var m=MATS[mat(st.mat)];if(m[1]!==null)st.n=m[1];sync();};});
+$('nobj').oninput=function(){var v=num(this.value,1,4);if(v===null)return;st.n=v;st.mat='custom';MATS.forEach(function(m){if(m[1]!==null&&!m[3]&&Math.abs(m[1]-v)<1e-9)st.mat=m[0];});sync();};
+$('nenv').oninput=function(){var v=num(this.value,1,4);if(v===null)return;st.n0=v;sync();};
+$('nobj').onchange=$('nenv').onchange=function(){this.blur();sync();};
+$('sl').oninput=function(){setAng(this.value);};
+$('ang').oninput=function(){setAng(this.value);};
+$('ang').onchange=function(){this.blur();sync();};
+$('stp').oninput=function(){var v=num(this.value,0.01,10);if(v!==null)st.step=v;};
+$('dec').onclick=function(){setAng(Math.round((st.ang-st.step)*100)/100);};
+$('inc').onclick=function(){setAng(Math.round((st.ang+st.step)*100)/100);};
+$('bLas').onclick=function(){st.laser=!st.laser;sync();};
+$('bNor').onclick=function(){st.normal=!st.normal;sync();};
+$('bPro').onclick=function(){st.prot=!st.prot;sync();};
+$('bGr').onclick=function(){st.graph=!st.graph;sync();resize();};
+$('cVal').onchange=function(){st.vals=this.checked;sync();};
+$('rst').onclick=function(){st=JSON.parse(JSON.stringify(DEF));sync();resize();};
+
+function fresnel(n1,n2,a){
+ var s=n1/n2*Math.sin(a);if(s>1)return {R:1,t:null};
+ var t=Math.asin(s),ci=Math.cos(a),ct=Math.cos(t);
+ if(ci<1e-9)return {R:1,t:t};
+ var rs=Math.pow((n1*ci-n2*ct)/(n1*ci+n2*ct),2),rp=Math.pow((n1*ct-n2*ci)/(n1*ct+n2*ci),2);
+ return {R:(rs+rp)/2,t:t};
+}
+function media(){return st.pos==1?[st.n0,st.n]:[st.n,st.n0];}
+
+function ray(x1,y1,x2,y2,I){
+ if(I<0.002)return;
+ ctx.save();ctx.strokeStyle='rgba(235,0,0,'+(0.55+0.45*I)+')';ctx.lineWidth=1.6+1.8*I;
+ ctx.shadowColor='rgba(255,0,0,'+(0.3+0.6*I)+')';ctx.shadowBlur=4+6*I;
+ ctx.beginPath();ctx.moveTo(x1,y1);ctx.lineTo(x2,y2);ctx.stroke();ctx.restore();
+}
+
+function draw(){
+ ctx.setTransform(dpr,0,0,dpr,0,0);ctx.clearRect(0,0,W,H);
+ var s=Math.min(W,H),cx=W/2,cy=H/2,R=s*0.28,Ls=s*0.36,far=s*2;
+ var mi=mat(st.mat),m=MATS[mi],nm=(st.mat=='custom'?T('obj'):mname(mi));
+ var a=st.ang*Math.PI/180;
+ ctx.strokeStyle='#ccc';ctx.lineWidth=1;ctx.beginPath();ctx.moveTo(0,cy);ctx.lineTo(W,cy);ctx.stroke();
+ ctx.beginPath();
+ if(st.pos==1)ctx.arc(cx,cy,R,0,Math.PI);else ctx.arc(cx,cy,R,Math.PI,2*Math.PI);
+ ctx.closePath();ctx.fillStyle=m[2];ctx.fill();ctx.strokeStyle='#145';ctx.lineWidth=1.5;ctx.stroke();
+ var fs=Math.max(11,Math.round(s*0.032));
+ ctx.fillStyle='#333';ctx.font=fs+'px Verdana,Arial';ctx.textAlign='left';
+ ctx.fillText((st.n0==1?T('air'):T('env'))+': n = '+f(st.n0,3),6,fs+4);
+ var ly=st.pos==1?cy+R+fs+6:cy-R-8;
+ ctx.textAlign='center';ctx.fillText(nm+': n = '+(hid()?'?':f(st.n,3)),cx,ly);
+ if(st.normal){ctx.save();ctx.setLineDash([7,5]);ctx.strokeStyle='#226';ctx.lineWidth=1.2;
+  ctx.beginPath();ctx.moveTo(cx,cy-s*0.47);ctx.lineTo(cx,cy+s*0.47);ctx.stroke();ctx.restore();}
+ var nn=media(),n1=nn[0],n2=nn[1];
+ var fr=fresnel(n1,n2,a);
+ var crit=n1>n2?Math.asin(n2/n1)*180/Math.PI:null;
+ var graze=st.laser&&crit!==null&&Math.abs(st.ang-crit)<=0.05;
+ var sx=cx-Ls*Math.sin(a),sy=cy-Ls*Math.cos(a);
+ if(st.laser){
+  ray(sx,sy,cx,cy,1);
+  ray(cx,cy,cx+far*Math.sin(a),cy-far*Math.cos(a),graze?0.9:fr.R);
+  if(graze){
+   ray(cx,cy,W,cy,0.85);
+   ctx.save();ctx.fillStyle='rgba(255,0,0,0.12)';ctx.fillRect(cx,cy-5,W-cx,10);ctx.restore();
+  }
+  else if(fr.t!==null)ray(cx,cy,cx+far*Math.sin(fr.t),cy+far*Math.cos(fr.t),1-fr.R);
+  ctx.beginPath();ctx.arc(cx,cy,3+3*fr.R,0,2*Math.PI);ctx.fillStyle='rgba(255,60,60,0.8)';ctx.fill();
+  var msg=graze?T('grzC'):(fr.t===null?T('tirC'):null);
+  if(msg){
+   var k=fs;ctx.font='bold '+k+'px Verdana,Arial';
+   while(k>8&&ctx.measureText(msg).width>W-10){k--;ctx.font='bold '+k+'px Verdana,Arial';}
+   ctx.fillStyle=graze?'#a30':'#c00';ctx.textAlign='center';ctx.fillText(msg,cx,H-fs);
+  }
+ }
+ var bl=s*0.08,bw=Math.max(10,s*0.035);
+ ctx.save();ctx.translate(sx,sy);ctx.rotate(-a);
+ ctx.fillStyle='#333';ctx.fillRect(-bw/2,-bl,bw,bl-3);
+ ctx.fillStyle='#777';ctx.fillRect(-bw/2,-bl,bw,3);ctx.fillRect(-bw/2,-bl*0.55,bw,2);
+ ctx.fillStyle=st.laser?'#f00':'#600';ctx.fillRect(-bw/4,-4,bw/2,4);
+ ctx.restore();
+ if(st.prot)prot(cx+st.pdx*s,cy+st.pdy*s,s*0.31);
+ var o=T('oInc')+': α = '+f(st.ang,2)+'°<br>';
+ if(graze)o+=T('oRef')+': <span class="tir">'+T('oGrz')+'</span><br>';
+ else if(fr.t!==null)o+=T('oRef')+': β = '+f(fr.t*180/Math.PI,1)+'°<br>';
+ else o+=T('oRef')+': <span class="tir">'+T('oTir')+'</span><br>';
+ o+=T('oRefl')+': γ = '+f(st.ang,1)+'°<br>';
+ o+=T('oCrit')+': α<sub>0</sub> = '+(hid()?'?':(n1>n2?f(Math.asin(n2/n1)*180/Math.PI,1)+'°':T('oNo')))+'<br>';
+ o+=T('oR')+': '+f(fr.R*100,1)+'%, '+T('oT')+': '+f((1-fr.R)*100,1)+'%';
+ $('out').innerHTML=o;
+ if(st.graph)graph();
+}
+
+function graph(){
+ var g=gctx,GW=W;
+ g.setTransform(dpr,0,0,dpr,0,0);g.clearRect(0,0,GW,GH);
+ var fs=GW<420?10:11,l=fs*3.6,r=14,t=fs*2.6,b=fs*3,pw=GW-l-r,ph=GH-t-b;
+ function X(d){return l+d/90*pw;}function Y(p){return t+(1-p)*ph;}
+ g.font=fs+'px Verdana,Arial';g.lineWidth=1;
+ for(var d=0;d<=90;d+=10){g.strokeStyle='#e2e2e2';g.beginPath();g.moveTo(X(d),t);g.lineTo(X(d),t+ph);g.stroke();
+  g.fillStyle='#333';g.textAlign='center';g.textBaseline='top';g.fillText(d,X(d),t+ph+4);}
+ for(var p=0;p<=100;p+=20){g.strokeStyle='#e2e2e2';g.beginPath();g.moveTo(l,Y(p/100));g.lineTo(l+pw,Y(p/100));g.stroke();
+  g.fillStyle='#333';g.textAlign='right';g.textBaseline='middle';g.fillText(p,l-4,Y(p/100));}
+ g.strokeStyle='#000';g.beginPath();g.moveTo(l,t);g.lineTo(l,t+ph);g.lineTo(l+pw,t+ph);g.stroke();
+ g.fillStyle='#000';g.textAlign='right';g.textBaseline='bottom';g.fillText('α, °',l+pw,GH-2);
+ g.textAlign='left';g.textBaseline='bottom';g.fillText('%',2,t-4);
+ var nn=media(),n1=nn[0],n2=nn[1];
+ // шекті бұрыш
+ var ac=n1>n2?Math.asin(n2/n1)*180/Math.PI:null;
+ if(ac!==null){
+  g.fillStyle='rgba(255,0,0,0.07)';g.fillRect(X(ac),t,X(90)-X(ac),ph);
+  g.save();g.setLineDash([5,4]);g.strokeStyle='#555';g.beginPath();g.moveTo(X(ac),t);g.lineTo(X(ac),t+ph);g.stroke();g.restore();
+  g.fillStyle='#333';g.textAlign=ac>75?'right':'left';g.textBaseline='top';
+  g.fillText(T('gC')+' = '+(hid()?'?':f(ac,1)+'°'),X(ac)+(ac>75?-4:4),t+ph*0.42);
+ }
+ // қисықтар
+ function curve(fn,col){g.strokeStyle=col;g.lineWidth=2.2;g.beginPath();
+  for(var i=0;i<=900;i++){var d=i/10,v=fn(fresnel(n1,n2,d*Math.PI/180));if(i)g.lineTo(X(d),Y(v));else g.moveTo(X(d),Y(v));}
+  g.stroke();g.lineWidth=1;}
+ curve(function(q){return q.R;},'#d00');
+ curve(function(q){return 1-q.R;},'#15c');
+ // ағымдағы бұрыш
+ var fr=fresnel(n1,n2,st.ang*Math.PI/180);
+ g.strokeStyle='#888';g.beginPath();g.moveTo(X(st.ang),t);g.lineTo(X(st.ang),t+ph);g.stroke();
+ [[fr.R,'#d00'],[1-fr.R,'#15c']].forEach(function(q){g.beginPath();g.arc(X(st.ang),Y(q[0]),4,0,2*Math.PI);g.fillStyle=q[1];g.fill();g.strokeStyle='#fff';g.stroke();});
+ // аңыз
+ g.textBaseline='middle';g.textAlign='left';
+ var lx=l+6,ly=fs*1.1;
+ g.fillStyle='#d00';g.fillRect(lx,ly-1,18,3);g.fillStyle='#000';g.fillText(T('gR')+' '+f(fr.R*100,1)+'%',lx+22,ly);
+ lx+=g.measureText(T('gR')+' 100.0%').width+40;
+ g.fillStyle='#15c';g.fillRect(lx,ly-1,18,3);g.fillStyle='#000';g.fillText(T('gT')+' '+f((1-fr.R)*100,1)+'%',lx+22,ly);
+}
+
+function prot(x,y,r){
+ ctx.save();
+ ctx.beginPath();ctx.arc(x,y,r,0,2*Math.PI);ctx.fillStyle='rgba(255,255,225,0.35)';ctx.fill();
+ ctx.strokeStyle='rgba(60,60,60,0.9)';ctx.lineWidth=1;ctx.stroke();
+ ctx.beginPath();ctx.moveTo(x-r,y);ctx.lineTo(x+r,y);ctx.moveTo(x,y-r);ctx.lineTo(x,y+r);
+ ctx.strokeStyle='rgba(60,60,60,0.45)';ctx.stroke();
+ var fs=Math.max(8,Math.round(r*0.07));
+ ctx.fillStyle='#222';ctx.textAlign='center';ctx.textBaseline='middle';
+ for(var d=0;d<360;d++){
+  var p=d*Math.PI/180,dx=Math.sin(p),dy=-Math.cos(p);
+  var t=d%10==0?r*0.1:(d%5==0?r*0.065:r*0.035);
+  if(r<90&&d%5)continue;
+  ctx.beginPath();ctx.moveTo(x+dx*r,y+dy*r);ctx.lineTo(x+dx*(r-t),y+dy*(r-t));ctx.strokeStyle='#333';ctx.stroke();
+  if(d%10==0){
+   var v=d<=180?d:360-d;
+   ctx.font=fs+'px Arial';ctx.fillStyle='#222';ctx.fillText(v,x+dx*(r-t-fs*0.9),y+dy*(r-t-fs*0.9));
+   if(r>=110&&v%30==0&&v!=0&&v!=180){ctx.font=(fs-1)+'px Arial';ctx.fillStyle='#777';ctx.fillText(180-v,x+dx*(r-t-fs*2.3),y+dy*(r-t-fs*2.3));}
+  }
+ }
+ ctx.beginPath();ctx.arc(x,y,3,0,2*Math.PI);ctx.fillStyle='#000';ctx.fill();
+ ctx.restore();
+}
+
+// транспортирді жылжыту
+var drag=null;
+function pt(cX,cY){var b=cv.getBoundingClientRect();return {x:cX-b.left,y:cY-b.top};}
+function hit(p){if(!st.prot)return false;var s=Math.min(W,H);var px=W/2+st.pdx*s,py=H/2+st.pdy*s;return Math.hypot(p.x-px,p.y-py)<=s*0.31;}
+function start(p){var s=Math.min(W,H);drag={ox:p.x-(W/2+st.pdx*s),oy:p.y-(H/2+st.pdy*s)};}
+function move(p){if(!drag)return;var s=Math.min(W,H);
+ var nx=p.x-drag.ox,ny=p.y-drag.oy;nx=Math.max(0,Math.min(W,nx));ny=Math.max(0,Math.min(H,ny));
+ if(Math.hypot(nx-W/2,ny-H/2)<10){nx=W/2;ny=H/2;}
+ st.pdx=(nx-W/2)/s;st.pdy=(ny-H/2)/s;draw();}
+cv.addEventListener('mousedown',function(e){var p=pt(e.clientX,e.clientY);if(hit(p)){start(p);e.preventDefault();}});
+window.addEventListener('mousemove',function(e){if(drag)move(pt(e.clientX,e.clientY));});
+window.addEventListener('mouseup',function(){drag=null;});
+cv.addEventListener('mousemove',function(e){cv.style.cursor=hit(pt(e.clientX,e.clientY))?'move':'default';});
+cv.addEventListener('touchstart',function(e){var t=e.touches[0],p=pt(t.clientX,t.clientY);if(e.touches.length==1&&hit(p)){start(p);e.preventDefault();}},{passive:false});
+cv.addEventListener('touchmove',function(e){if(drag){var t=e.touches[0];move(pt(t.clientX,t.clientY));e.preventDefault();}},{passive:false});
+cv.addEventListener('touchend',function(){drag=null;});
+cv.addEventListener('touchcancel',function(){drag=null;});
+
+function resize(){
+ dpr=window.devicePixelRatio||1;
+ W=cv.parentNode.clientWidth-2;if(W<200)W=200;
+ H=Math.round(Math.min(W*0.95,600));
+ cv.style.height=H+'px';cv.width=Math.round(W*dpr);cv.height=Math.round(H*dpr);
+ GH=Math.round(Math.min(Math.max(W*0.55,200),300));
+ gr.style.height=GH+'px';gr.width=Math.round(W*dpr);gr.height=Math.round(GH*dpr);
+ draw();
+}
+window.addEventListener('resize',resize);
+resize();applyLang();
+</script>
+</body>
+</html>
